@@ -17,17 +17,10 @@ module Plaza
     end
     alias_method :logger=, :logger
 
-    def use_cache?
-      @use_cache ||= false
+    def cache_store(store = nil)
+      store ? @cache_store = store : @cache_store
     end
-
-    def cache_meta_store
-      @cache_meta_store ||= 'file:/tmp/cache/meta'
-    end
-
-    def cache_entity_store
-      @cache_meta_store ||= 'file:/tmp/cache/body'
-    end
+    alias_method :cache_store=, :cache_store
 
   end
 end

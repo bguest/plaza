@@ -1,4 +1,5 @@
 require 'faraday'
+require 'faraday/http_cache'
 require 'faraday_middleware'
 require_relative 'middleware/user_id'
 require_relative 'middleware/exceptions'
@@ -9,22 +10,9 @@ module Plaza
     attr_reader :logger
 
     def initialize(config_sym= :default)
-      config = Plaza.configuration(config_sym)
-      @connection = Faraday.new(config.base_url) do |conn|
-        conn.request :json
-        conn.response :json, :content_type => /\bjson$/
-
-        conn.use Plaza::Middleware::Exceptions
-        conn.use Plaza::Middleware::UserId
-
-        conn.headers[:accept] = 'application/json'
-        yield(conn) if block_given?
-
-        conn.adapter Faraday.default_adapter
-      end
-      @logger = config.logger
+      @connection = Plaza.connection(config_sym)
+      @logger = Plaza.configuration(config_sym).logger
     end
-
 
     def get(*args)
       Response.new(connection.get *args)

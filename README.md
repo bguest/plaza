@@ -51,10 +51,19 @@ logger that plaza models will use.
 
 ```ruby
 Plaza.configure do
-  base_url 'http://www.example.com/rest' # Required
-  logger   Logger.new(STDOUT)            # Default
+  base_url    'http://www.example.com/rest' # Required
+  logger      Logger.new(STDOUT)            # Default
+  cache_store MemoryStore.new               # Default, recommend `Rails.cache` for rails apps
 end
 ```
+
+#### Cache Store
+
+The store where cached responses are stored, for rails apps we recommend that you just set this
+to `Rails.cache`. Plaza uses [Faraday Http Cache][4] for caching, refer to their documentation for
+more information on what the store can be.
+
+#### Multiple Services
 
 If your plaza models need to connect to multiple services with different base urls, they can be
 configured as such:
@@ -118,6 +127,12 @@ Want to know more, go checkout the code, the guts of it are located at
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
 
+## STD (Stuff To Do) before 1.0.0
+
+3. Add Ability to customize Faraday Stack from configuration
+4. Add Support for messages (see rest_area)
+
 [1]:https://github.com/bguest/rest_area
 [2]:https://github.com/solnic/virtus
 [3]:https://github.com/lostisland/faraday
+[4]:https://github.com/plataformatec/faraday-http-cache

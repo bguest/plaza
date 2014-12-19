@@ -63,6 +63,15 @@ describe Thing do
     }
   }
 
+  let(:amabob_hash){
+    {
+      'amabob' => {
+        'id' => 3,
+        'amajig_id' => 2
+      }
+    }
+  }
+
   let(:amabobs_hash){
     {
       'amabobs' =>[
@@ -149,6 +158,17 @@ describe Thing do
           to_raise(Faraday::Error::ConnectionFailed.new('Connection Failed'))
 
         expect{Thing.find(1)}.to raise_error(Plaza::ConnectionError)
+      end
+    end
+
+    context 'with caching' do
+      it 'second request should be cached and not hit server' do
+        stub_request(:get, 'http://www.example.com/rest/amabobs/3.json').to_return(
+          headers: {'Cache-Control' => 'max-age=200'},
+          body:amabob_hash.to_json
+        ).times(1).then.to_raise('Cache Not Working')
+        Amabob.find(3)
+        expect{ Amabob.find(3) }.not_to raise_error
       end
     end
   end

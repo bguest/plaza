@@ -38,20 +38,14 @@ describe Request do
   end
 
   context "when trucker service is down" do
-    let(:request){
-      exception = Faraday::Adapter::Test::Stubs.new do |stub|
-        %i(get put post delete).each do |method|
-          stub.send(method, '/failblog') {raise Faraday::Error::ConnectionFailed.new('Connection Failed')}
-        end
-      end
-      request = Request.new do |conn|
-        conn.adapter :test, exception
-      end
-      request
-    }
     %i(get put post delete).each do |method|
       describe "#{method}" do
-        let(:response){request.send(method, '/failblog')}
+        before do
+          stub_request(method, "http://example.com/failblog").
+            to_raise(Faraday::Error::ConnectionFailed.new('Connection Failed'))
+        end
+
+        let(:response){Request.new.send(method, '/failblog')}
 
         it 'response code should be 503' do
           expect{response}.to raise_error(Plaza::ConnectionError)
