@@ -37,9 +37,11 @@ class Thing
   attribute :name, String
   attribute :amajig_id, Integer
 
-  has_many :amabobs
+  has_many :amabobs, 'Amajing'   # 1
 end
 ```
+
+**Note 1**: Valid: plural symbols: `:amabobs`, classes: `MyModule::Amabob`, strings: `'MyModule::Amabob'`
 
 See [Virtus][2] for more information on configuring attributes.
 
@@ -47,13 +49,14 @@ See [Virtus][2] for more information on configuring attributes.
 
 At some point before you use a Plaza model, you need to configure Plaza, at the bare minimum you
 need to tell plaza the base url to use for the rest_area api. You can optionally configure the
-logger that plaza models will use.
+logger, cache store, and faraday middleware that plaza models will use.
 
 ```ruby
 Plaza.configure do
   base_url    'http://www.example.com/rest' # Required
   logger      Logger.new(STDOUT)            # Default
   cache_store MemoryStore.new               # Default, recommend `Rails.cache` for rails apps
+  use         Faraday::SomeMiddleware       # Add faraday middleware useing use
 end
 ```
 
@@ -62,6 +65,22 @@ end
 The store where cached responses are stored, for rails apps we recommend that you just set this
 to `Rails.cache`. Plaza uses [Faraday Http Cache][4] for caching, refer to their documentation for
 more information on what the store can be.
+
+#### Faraday Middleware
+
+Becasue Plaza works on top of [Faraday][3], you can optionaly add additional middleware to Plaza using the
+`use` keyword inside the `Plaza.configure` block
+
+```ruby
+Plaza.configure do
+  base_url 'http://my_domain.com/rest'
+  use      Foobar::SomeMiddleware, Goobar::MoreMiddleware
+  use      Moobar::MoreMiddleware
+end
+```
+
+Middleware is applied in the same order that Faraday would apply it; the first middleware listed
+wraps the second middleware which wraps the thrid middleware and so forth until the request is made.
 
 #### Multiple Services
 
@@ -110,13 +129,23 @@ Delete Models: `my_thing.delete`
 Get associated objects: `amabobs_array = my_thing.amabobs`. This requires that you define the
    `has_many` relationship in the class definition. (See Thing definition above)
 
+If you need make associations as part of a module, you will need to specify the `has_many` association as follows
+
+    module Foobar
+      class Thing
+        include Plaza::RestfulModel
+        has_many Foobar::Amajig     # Perfered Method, but you may run into issues with load order
+        has_many 'Foobar::Amajig'   # Alternative you can specify the class as a string.
+      end
+    end
+
 Get related models for which you have the foreign key: `my_thing = a_mabob.thing`
 Note on this: If you ask a rest model for a attribute and it doesn't have it, but it has the
 same attribute with an underscore id, it's smart enough to know thats a foreign key and go off and
 fetch the related rest model.
 
 Want to know more, go checkout the code, the guts of it are located at
-`lib/plaza/models/restfull_model.rb`
+`lib/plaza/models/restful_model.rb`
 
 ## Contributing
 
@@ -129,7 +158,6 @@ Want to know more, go checkout the code, the guts of it are located at
 
 ## STD (Stuff To Do) before 1.0.0
 
-3. Add Ability to customize Faraday Stack from configuration
 4. Add Support for messages (see rest_area)
 
 [1]:https://github.com/bguest/rest_area

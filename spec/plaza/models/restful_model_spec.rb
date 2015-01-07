@@ -8,23 +8,31 @@ class Thing
   attribute :amajig_id, Integer
 end
 
-class Amajig
-  include Plaza::RestfulModel
-
-  has_many :things, :amabobs
-  attribute :name
-end
-
-Plaza.configure :amabob do
+Plaza.configure :foobar do
   base_url 'http://www.example.com/rest'
   logger   NullLogger.new # Specs should STFU
 end
 
-class Amabob
-  include Plaza::RestfulModel
-  plaza_config :amabob
+module Foobar
+  class Amabob
+    include Plaza::RestfulModel
+    plaza_config :foobar
 
-  attribute :amajig_id, Integer
+    has_many 'Foobar::Amajing'
+    attribute :amajig_id, Integer
+  end
+
+  class Amajing
+    include Plaza::RestfulModel
+    plaza_config :foobar
+  end
+end
+
+class Amajig
+  include Plaza::RestfulModel
+
+  has_many :things, Foobar::Amabob
+  attribute :name
 end
 
 describe Thing do
@@ -82,6 +90,21 @@ describe Thing do
         {
           'id' => 4,
           'amajig_id' => 2
+        }
+      ]
+    }
+  }
+
+  let(:amajings_hash){
+    {
+      'amajings'=>[
+        {
+          'id'=> 5,
+          'amabob_id'=> 4
+        },
+        {
+          'id'=> 6,
+          'amabob_id'=> 4
         }
       ]
     }
@@ -167,8 +190,8 @@ describe Thing do
           headers: {'Cache-Control' => 'max-age=200'},
           body:amabob_hash.to_json
         ).times(1).then.to_raise('Cache Not Working')
-        Amabob.find(3)
-        expect{ Amabob.find(3) }.not_to raise_error
+        Foobar::Amabob.find(3)
+        expect{ Foobar::Amabob.find(3) }.not_to raise_error
       end
     end
   end
@@ -239,7 +262,13 @@ describe Thing do
     it 'gets second has_many relationships' do
       amajig = Amajig.new(amajig_hash['amajig'])
       stub_request(:get, 'http://example.com/rest/amajigs/2/amabobs.json').to_return(body:amabobs_hash.to_json)
-      expect(amajig.amabobs.first.class).to be Amabob
+      expect(amajig.amabobs.first.class).to be Foobar::Amabob
+    end
+
+    it 'gets string has_many relationships' do
+      amabob = Foobar::Amabob.new(id:4)
+      stub_request(:get, 'http://www.example.com/rest/amabobs/4/amajings.json').to_return(body:amajings_hash.to_json)
+      expect(amabob.amajings.first.class).to be Foobar::Amajing
     end
   end
 

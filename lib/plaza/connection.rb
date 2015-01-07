@@ -7,8 +7,9 @@ module Plaza
         conn.request :json
         conn.response :json, :content_type => /\bjson$/
 
-        conn.use Plaza::Middleware::Exceptions
-        conn.use Plaza::Middleware::UserId
+        config.middleware.each do |middleware|
+          conn.use middleware
+        end
         conn.use :http_cache, store: config.cache_store, logger: config.logger
 
         conn.headers[:accept] = 'application/json'
