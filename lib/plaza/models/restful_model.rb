@@ -48,7 +48,7 @@ module Plaza
       end
 
       def plural_name
-        singular_name + 's'
+        Inflector.pluralize(singular_name)
       end
 
       def singular_name
