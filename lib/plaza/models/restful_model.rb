@@ -144,7 +144,8 @@ module Plaza
       if self.respond_to?(method_name + '_id')
         obj_id = self.send(method_name + '_id')
         class_name = Plaza::Inflector.classify(method_name)
-        return Plaza.const_get(class_name).find(obj_id)
+        klass = (self.class.name.split('::')[0..-2] + [class_name]).reduce(Module, :const_get)
+        return klass.find(obj_id)
       else
         raise NoMethodError.new "undefined method '#{method_name}' for #{self.class}"
       end

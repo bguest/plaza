@@ -27,9 +27,7 @@ describe Request do
     %i(get post put delete).each do |method|
       it "##{method} should now add X-User-Id to headers" do
         stub_request(method, "http://example.com/foobar").
-          with(:headers => {
-            'Accept'=>'application/json',
-            'User-Agent'=>'Faraday v0.9.0'}).
+          with(:headers => {'Accept'=>'application/json'}).
           to_return(:status => 200, :body => "", :headers => {})
 
         Request.new.send(method, '/foobar')

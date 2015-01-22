@@ -19,7 +19,7 @@ module Foobar
     plaza_config :foobar
 
     has_many 'Foobar::Amajing'
-    attribute :amajig_id, Integer
+    attribute :amajing_id, Integer
   end
 
   class Amajing
@@ -75,7 +75,7 @@ describe Thing do
     {
       'amabob' => {
         'id' => 3,
-        'amajig_id' => 2
+        'amajing_id' => 2
       }
     }
   }
@@ -249,6 +249,12 @@ describe Thing do
       thing = Thing.new(thing_hash['thing'])
       stub_request(:get, 'http://example.com/rest/amajigs/2.json').to_return(body:amajig_hash.to_json)
       thing.amajig.name.should == 'Jigger'
+    end
+
+    it 'should get reltated object in module' do
+      bob = Foobar::Amabob.new(amabob_hash['amabob'])
+      stub_request(:get, 'http://www.example.com/rest/amajings/2.json').to_return(body:amabobs_hash.to_json)
+      bob.amajing.class.name.should == 'Foobar::Amajing'
     end
   end
 

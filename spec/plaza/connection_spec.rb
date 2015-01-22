@@ -16,7 +16,6 @@ describe Plaza::Connection do
           'Accept'=>'application/json',
           'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
           'Greetings'=>'HelloGoodbye',
-          'User-Agent'=>'Faraday v0.9.0',
           'X-User-Id'=>''}
         ).to_return(:status => 200, :body => "", :headers => {})
       connection = Plaza::Connection.for(:connection_spec)
