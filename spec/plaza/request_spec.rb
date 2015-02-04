@@ -37,7 +37,7 @@ describe Request do
 
   end
 
-  context "when trucker service is down" do
+  context "when service is down" do
     let(:request){
       exception = Faraday::Adapter::Test::Stubs.new do |stub|
         %i(get put post delete).each do |method|
