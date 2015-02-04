@@ -147,6 +147,11 @@ fetch the related rest model.
 Want to know more, go checkout the code, the guts of it are located at
 `lib/plaza/models/restful_model.rb`
 
+## Questions & Answers
+
+*Q*. Why not ActiveResource?
+*A*. ActiveResource is dependent on ActiveModel and ActiveSupport, both of which are tied to a specific version of rails. We didn't want all the dependency. Building on top of Faraday and Virtus offered greater flexibility and less dependencies.
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/plaza/fork )
