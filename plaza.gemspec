@@ -23,10 +23,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 2.99'
   spec.add_development_dependency 'mocha', '~> 1.1'
 
-  spec.add_runtime_dependency "rest-client", "~> 1.6"
-  spec.add_runtime_dependency "rest-client-components"
   spec.add_runtime_dependency 'faraday', '~> 0.9.0'
   spec.add_runtime_dependency 'faraday_middleware', '~>0.9.1'
-  spec.add_runtime_dependency "rack-cache", '~> 1.2'
+  spec.add_runtime_dependency 'faraday-http-cache', '~>0.4.2'
   spec.add_runtime_dependency "virtus", '~> 1.0'
 end

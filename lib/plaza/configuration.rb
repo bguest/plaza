@@ -3,13 +3,30 @@ require 'logger'
 module Plaza
   class Configuration
 
-    #things that do have defaults only get writers
-    attr_writer :use_cache, :cache_entity_store, :cache_meta_store
+    attr_accessor :middleware
+    attr_accessor :default_middleware
+
+    def initialize
+      @default_middleware = [
+        Plaza::Middleware::Exceptions,
+        Plaza::Middleware::UserId
+      ]
+      @middleware = []
+    end
+
+    def middleware
+      @middleware + default_middleware
+    end
 
     def base_url(url = nil)
       url ? @url = url : @url
     end
     alias_method :base_url=, :base_url
+
+    def cache_store(store = nil)
+      store ? @cache_store = store : @cache_store
+    end
+    alias_method :cache_store=, :cache_store
 
     def logger(logger = nil)
       @logger ||= Logger.new(STDOUT)
@@ -17,17 +34,9 @@ module Plaza
     end
     alias_method :logger=, :logger
 
-    def use_cache?
-      @use_cache ||= false
+    def use(*ware)
+      @middleware << ware
+      @middleware.flatten!
     end
-
-    def cache_meta_store
-      @cache_meta_store ||= 'file:/tmp/cache/meta'
-    end
-
-    def cache_entity_store
-      @cache_meta_store ||= 'file:/tmp/cache/body'
-    end
-
   end
 end

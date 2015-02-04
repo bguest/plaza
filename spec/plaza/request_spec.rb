@@ -6,6 +6,7 @@ describe Request do
   context 'when Thread.current[:x_user_id] is set' do
 
     before do Thread.current[:x_user_id] = 4242 end
+    after do Thread.current[:x_user_id] = nil end
 
     %i(get post put delete).each do |method|
       it "##{method} should add X-User-Id to headers" do
@@ -49,9 +50,15 @@ describe Request do
       end
       request
     }
+
     %i(get put post delete).each do |method|
       describe "#{method}" do
-        let(:response){request.send(method, '/failblog')}
+        before do
+          stub_request(method, "http://example.com/failblog").
+            to_raise(Faraday::Error::ConnectionFailed.new('Connection Failed'))
+        end
+
+        let(:response){Request.new.send(method, '/failblog')}
 
         it 'response code should be 503' do
           expect{response}.to raise_error(Plaza::ConnectionError)
