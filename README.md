@@ -116,7 +116,7 @@ Create models: `my_thing = Thing.create(:name => 'Bob')`. This results in an POS
 Find existing models: `my_thing = Thing.find(10)`. This results in a GET API call like `GET
 http://example.com/things/10`
 
-Pass query string to API: `Thing.were(:name = 'bob')`. This results in an api call like `GET
+Pass query string to API: `Thing.where(:name = 'bob')`. This results in an api call like `GET
 http://example.com/rest/things?name=bob`. Returns an array.
 
 Update model attributes: `my_thing.name = 'Kevin'`
