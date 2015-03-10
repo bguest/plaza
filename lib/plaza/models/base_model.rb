@@ -33,8 +33,8 @@ module Plaza
       {singular_name => attributes}
     end
 
-    def to_json
-      self.serialize.to_json
+    def to_json(*args)
+      self.serialize.to_json(*args)
     end
   end
 end

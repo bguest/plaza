@@ -1,5 +1,5 @@
 module Plaza
-  class Error < ::StandardError
+  class Error < ::RuntimeError
     attr_reader :response
 
     def initialize(response, message = nil)
@@ -9,7 +9,7 @@ module Plaza
     end
 
     def status
-      response.respond_to?(:status) ? response.status : nil
+      response.respond_to?(:code) ? response.code : nil
     end
 
     def to_s

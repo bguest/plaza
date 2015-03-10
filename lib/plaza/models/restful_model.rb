@@ -15,7 +15,7 @@ module Plaza
 
         def serialize
           attrs = attributes.delete_if{|k, v| k.to_sym == :id && v.nil?}
-          attrs = attrs.delete_if{|k, v| [:updated_at, :created_at].include?(k.to_sym)}
+          attrs = attrs.delete_if{|k, v| self.class.restricted_attributes.include?(k.to_sym)}
           attrs.delete(:errors)
           {singular_name => attrs}
         end
@@ -63,6 +63,11 @@ module Plaza
             class_for(r).collection(adapter.has_many(self.id,sym))
           end
         end
+      end
+
+      def restricted_attributes(*args)
+        @restricted_attributes ||= []
+        !args.empty? ? @restricted_attributes = args : @restricted_attributes
       end
 
       def plaza_config(config = nil)
@@ -150,12 +155,24 @@ module Plaza
         raise NoMethodError.new "undefined method '#{method_name}' for #{self.class}"
       end
     end
+    
+    def plural_name
+      self.class.plural_name
+    end
 
     protected
+    def namespace
+      Kernel.const_get(self.class.to_s.split("::")[0...-1].join("::"))
+    end
 
     def class_for(identifier)
       if identifier.kind_of?(Symbol)
-        klass = Plaza.const_get(Plaza::Inflector.classify(identifier.to_s))
+        _name = Plaza::Inflector.classify(identifier.to_s)
+        if namespace.const_defined?(_name)
+          klass = namespace.const_get(_name)
+        else
+          klass = Kernel.const_get(_name)
+        end
       elsif identifier.kind_of?(String)
         klass = Object.const_get(identifier)
       elsif identifier.kind_of?(Class)
