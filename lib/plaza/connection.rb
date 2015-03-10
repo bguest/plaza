@@ -11,14 +11,14 @@ module Plaza
         config.middleware.each do |middleware|
           conn.use middleware
         end
-        
-        conn.use :http_cache, store: config.cache_store, logger: config.logger if config.cache_store
+
+        conn.use :http_cache, store: config.cache_store, logger: config.logger
 
         conn.headers[:accept] = 'application/json'
 
         conn.adapter Faraday.default_adapter
         conn.response :selective_errors, except: [422]
-        conn.use :extended_logging, logger: config.logger 
+        conn.use :extended_logging, logger: config.logger
       end
     end
 
