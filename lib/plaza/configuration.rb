@@ -28,6 +28,10 @@ module Plaza
     end
     alias_method :cache_store=, :cache_store
 
+    def restful_path(path = nil)
+      path ? @restful_path = path : @restful_path
+    end
+
     def logger(logger = nil)
       @logger ||= Logger.new(STDOUT)
       logger ? @logger = logger : @logger

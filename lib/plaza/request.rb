@@ -1,6 +1,7 @@
 require 'faraday'
 require 'faraday/http_cache'
 require 'faraday_middleware'
+require "faraday/conductivity"
 require_relative 'middleware/user_id'
 require_relative 'middleware/exceptions'
 
