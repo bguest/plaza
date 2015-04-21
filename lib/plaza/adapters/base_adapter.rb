@@ -32,7 +32,7 @@ module Plaza
         if response.body.kind_of? Hash
           response.body
         else
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
       rescue JSON::ParserError=> jsonError
         error = Plaza::Error.new(jsonError, jsonError.message)

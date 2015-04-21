@@ -95,6 +95,7 @@ module Plaza
     end
 
     def save
+      self.errors = {}
       begin
         if persisted?
           self.attributes = self.class.adapter.update(self.id, self.serialize)

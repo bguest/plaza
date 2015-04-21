@@ -222,6 +222,21 @@ describe Thing do
         expect(thing.id).to eq 42
       end
 
+      it 'should clear errors on subsequent saves' do
+        valid_name = 'New Thing'
+        error_hash = {body: {'errors'=>{name: 'must be more than 5 characters'}}.to_json, status: 422}
+        valid_hash = {body: {name: valid_name}.to_json, status: 200}
+        stub_request(:post, 'http://example.com/rest/things.json').to_return(error_hash, valid_hash ) #multiple response for same call, happens in order
+        thing = Thing.new(name:valid_name[0..3])
+        expect(thing.save).to be_falsey
+        expect(thing.errors).not_to be_empty
+        thing.name=valid_name
+        thing.save
+        expect(thing.save).to be_truthy
+        expect(thing.errors).to be_empty
+      end
+
+
     end
 
     context 'when thing has an id' do
