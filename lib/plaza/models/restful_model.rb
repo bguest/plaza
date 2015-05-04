@@ -10,6 +10,7 @@ module Plaza
       base.class_eval do
         include Virtus.model
         include Plaza::BaseModel
+        include Plaza::Associations
         attribute :id,     Integer
         attribute :errors, Hash
 
@@ -26,8 +27,8 @@ module Plaza
 
     module ClassMethods
 
-      def all
-        collection(adapter.index)
+      def all(attributes=nil)
+        collection(adapter.index(attributes))
       end
 
       def find(id)
@@ -44,7 +45,7 @@ module Plaza
       end
 
       def where(attributes)
-        collection( adapter.index(attributes) )
+        all(attributes)
       end
 
       def plural_name
@@ -53,16 +54,6 @@ module Plaza
 
       def singular_name
         self.to_s.split('::').last.scan(/[A-Z][a-z]+/).join('_').downcase
-      end
-
-      # Class Configuration
-      #
-      def has_many(*relations)
-        relations.each do |r|
-          define_method(sym = has_many_symbol_for(r)) do
-            class_for(r).collection(adapter.has_many(self.id,sym))
-          end
-        end
       end
 
       def restricted_attributes(*args)
@@ -76,21 +67,6 @@ module Plaza
       end
 
       alias_method :plaza_config=, :plaza_config
-
-      private
-
-      def has_many_symbol_for(identifier)
-        if identifier.kind_of? Class
-          identifier.plural_name
-        elsif identifier.kind_of? String
-          Inflector.tableize(identifier.split('::').last)
-        elsif identifier.kind_of? Symbol
-          identifier
-        else
-          raise TypeError.new("Can't convert to has_many symbol")
-        end
-      end
-
 
     end
 
@@ -111,16 +87,17 @@ module Plaza
     end
 
     def new_record?
-      !persisted?
+      self.id.nil?
     end
 
     def persisted?
-      self.id.present?
+      !new_record?
     end
 
     def save
+      self.errors = {}
       begin
-        if self.id
+        if persisted?
           self.attributes = self.class.adapter.update(self.id, self.serialize)
         else
           self.attributes = self.class.adapter.create(self.serialize)
@@ -155,32 +132,11 @@ module Plaza
         raise NoMethodError.new "undefined method '#{method_name}' for #{self.class}"
       end
     end
-    
+
     def plural_name
       self.class.plural_name
     end
 
-    protected
-    def namespace
-      Kernel.const_get(self.class.to_s.split("::")[0...-1].join("::"))
-    end
-
-    def class_for(identifier)
-      if identifier.kind_of?(Symbol)
-        _name = Plaza::Inflector.classify(identifier.to_s)
-        if namespace.const_defined?(_name)
-          klass = namespace.const_get(_name)
-        else
-          klass = Kernel.const_get(_name)
-        end
-      elsif identifier.kind_of?(String)
-        klass = Object.const_get(identifier)
-      elsif identifier.kind_of?(Class)
-        klass = identifier
-      else
-        raise TypeError.new("Can't convert to has_many relation")
-      end
-    end
 
   end
 end

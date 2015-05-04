@@ -22,7 +22,7 @@ describe RestfulAdapter do
       expect{adapter.show(1000)}.to raise_error{ |error|
         error.should be_a(Plaza::Error)
         error.status.should == 404
-        error.message.should =~ /Couldn't find/
+        error.message.should =~ /Resource Not Found/
       }
     end
 

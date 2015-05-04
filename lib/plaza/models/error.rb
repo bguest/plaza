@@ -9,7 +9,11 @@ module Plaza
     end
 
     def status
-      response.respond_to?(:code) ? response.code : nil
+      if response.kind_of?(Hash)
+       response[:status]
+      else
+        response.respond_to?(:code) ? response.code : nil
+      end
     end
 
     def to_s
