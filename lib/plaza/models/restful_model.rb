@@ -11,8 +11,7 @@ module Plaza
         include Virtus.model
         include Plaza::BaseModel
         include Plaza::Associations
-        attribute :id,     Integer
-        attribute :errors, Hash
+        include Plaza::Persistable
 
         def serialize
           attrs = attributes.delete_if{|k, v| k.to_sym == :id && v.nil?}
@@ -84,28 +83,6 @@ module Plaza
       else
         errors.collect{|k, v| v.collect{|val| "#{k} #{val}"}}.flatten
       end
-    end
-
-    def new_record?
-      self.id.nil?
-    end
-
-    def persisted?
-      !new_record?
-    end
-
-    def save
-      self.errors = {}
-      begin
-        if persisted?
-          self.attributes = self.class.adapter.update(self.id, self.serialize)
-        else
-          self.attributes = self.class.adapter.create(self.serialize)
-        end
-      rescue Plaza::ResourceInvalid => e
-        self.errors.merge!(e.errors)
-      end
-      self.errors.empty?
     end
 
     def symbolize_keys(hash)
